@@ -91,7 +91,7 @@
 <body>
     <div class="container">
         <h1>📸 NeRF 3D 모델 생성기</h1>
-        <p>객체를 여러 각도에서 찍은 이미지(10-150장)를 업로드하세요.</p>
+        <p>객체를 여러 각도에서 찍은 이미지(20-150장)를 업로드하세요.</p>
         <form id="upload-form">
             <input type="file" id="images" name="images" multiple required accept="image/png, image/jpeg">
             <button type="submit" id="submit-btn">업로드 및 생성 시작</button>
@@ -119,12 +119,11 @@
             submitBtn.disabled = true;
             submitBtn.textContent = '처리 중...';
             progressArea.style.display = 'block';
-            logContainer.innerHTML = ''; // 로그 초기화
+            logContainer.innerHTML = '';
 
             const formData = new FormData(uploadForm);
 
             try {
-                // 1. 파일 업로드 및 검증
                 progressText.textContent = '파일 업로드 및 검증 중...';
                 const uploadResponse = await fetch('/upload', { method: 'POST', body: formData });
                 const uploadResult = await uploadResponse.json();
@@ -135,30 +134,26 @@
                 logContainer.innerHTML += `✅ ${uploadResult.message}\n`;
                 const sessionId = uploadResult.session_id;
 
-                // 2. 3D 모델 생성 프로세스 시작 (Server-Sent Events)
                 const eventSource = new EventSource(`/process/${sessionId}`);
 
                 eventSource.onmessage = function (event) {
                     const res = JSON.parse(event.data);
 
                     if (res.type === 'progress') {
-                        // 진행률 업데이트
                         progressText.textContent = res.data.text;
                         progressBar.style.width = res.data.percent + '%';
                         progressBar.textContent = res.data.percent + '%';
 
-                        // 프로세스 완료 시
                         if (res.data.status === 'success') {
-                            window.location.href = `/viewer/${sessionId}`; // 뷰어 페이지로 이동
+                            window.location.href = `/viewer/${sessionId}`;
                             eventSource.close();
                         } else if (res.data.status === 'failed') {
-                            progressBar.style.backgroundColor = '#fa383e'; // 실패 시 빨간색
+                            progressBar.style.backgroundColor = '#fa383e';
                             submitBtn.disabled = false;
                             submitBtn.textContent = '다시 시도';
                             eventSource.close();
                         }
                     } else if (res.type === 'log') {
-                        // 로그 업데이트
                         logContainer.innerHTML += `${res.data}\n`;
                         logContainer.scrollTop = logContainer.scrollHeight;
                     }

@@ -1,7 +1,17 @@
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.suo
+*.user
+*.sln.docstates
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
+dist/
+build/
 
 # Environment
 .env
@@ -11,9 +21,9 @@ env/
 ENV/
 
 # Uploads
-# 사용자가 업로드한 파일과 결과물은 리포지토리에 포함시키지 않음
+# 사용자가 업로드한 파일과 결과물은 리포지토리에 포함시키지 않습니다.
 uploads/
 
-# IDE
-.vscode/
-.idea/
+# OS generated files
+.DS_Store
+Thumbs.db
