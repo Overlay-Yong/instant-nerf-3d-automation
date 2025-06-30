@@ -1,17 +1,63 @@
-ï»¿ğŸ‰ FINAL: Complete Instant-NeRF Web Application
+# Instant-NGP 3D Automation Web UI
 
-ğŸš€ Production-ready features:
-- âœ… Modern web interface with drag & drop
-- âœ… Real-time progress tracking
-- âœ… Flask backend architecture  
-- âœ… Responsive design for all devices
-- âœ… Complete documentation
-- âœ… Performance benchmarks included
+ÀÌ ÇÁ·ÎÁ§Æ®´Â NVIDIAÀÇ Instant-NGP ±â¼úÀ» À¥ ÀÎÅÍÆäÀÌ½º¸¦ ÅëÇØ ½±°Ô »ç¿ëÇÒ ¼ö ÀÖµµ·Ï ¸¸µç ÀÚµ¿È­ ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÔ´Ï´Ù. »ç¿ëÀÚ´Â ¿©·¯ ÀåÀÇ ÀÌ¹ÌÁö¸¦ ¾÷·ÎµåÇÏ´Â °Í¸¸À¸·Î NeRF ±â¹İÀÇ 3D ¸ğµ¨À» »ı¼ºÇÏ°í À¥ ºä¾î·Î Áï½Ã È®ÀÎÇÒ ¼ö ÀÖ½À´Ï´Ù.
 
-ğŸ“ˆ Technical achievements:
-- RTX 4060 optimization (71.4 steps/s)
-- RESTful API design
-- Error handling & session management
-- Cross-platform compatibility
+## ÁÖ¿ä ±â´É
 
-ğŸ¯ Ready for portfolio presentation!"
+-   **À¥ ±â¹İ ÀÎÅÍÆäÀÌ½º:** ¸ğµç °úÁ¤À» À¥ ºê¶ó¿ìÀú¿¡¼­ Ã³¸®ÇÕ´Ï´Ù.
+-   **ÀÌ¹ÌÁö ¾÷·Îµå:** ´ÙÁß ÀÌ¹ÌÁö ¾÷·Îµå¸¦ Áö¿øÇÕ´Ï´Ù.
+-   **ÀÚµ¿È­µÈ ÆÄÀÌÇÁ¶óÀÎ:** COLMAPÀ» ÀÌ¿ëÇÑ Ä«¸Ş¶ó ÀÚ¼¼ ÃßÁ¤ºÎÅÍ NeRF ÇĞ½À, 3D ¸Ş½¬ ÃßÃâ±îÁö ¸ğµç °úÁ¤À» ÀÚµ¿À¸·Î ½ÇÇàÇÕ´Ï´Ù.
+-   **½Ç½Ã°£ ÁøÇà »óÈ²:** Server-Sent Events(SSE)¸¦ ÅëÇØ ¸ğµç Ã³¸® °úÁ¤À» ½Ç½Ã°£ ·Î±×·Î È®ÀÎÇÒ ¼ö ÀÖ½À´Ï´Ù.
+-   **3D ¸ğµ¨ ºä¾î:** Three.js ±â¹İÀÇ À¥ ºä¾î·Î »ı¼ºµÈ OBJ ¸ğµ¨À» Áï½Ã È®ÀÎÇÏ°í ´Ù¿î·ÎµåÇÒ ¼ö ÀÖ½À´Ï´Ù.
+
+## ¼³Ä¡ ¹× ½ÇÇà ¹æ¹ı
+
+### 1. »çÀü ¿ä±¸»çÇ×
+
+-   **Python 3.8 ÀÌ»ó**
+-   **NVIDIA ±×·¡ÇÈ Ä«µå** (CUDA Áö¿ø)
+-   **Instant-NGP:** [°ø½Ä °¡ÀÌµå](https://github.com/nvlabs/instant-ngp)¿¡ µû¶ó ¸ÕÀú ºôµå¸¦ ¿Ï·áÇØ¾ß ÇÕ´Ï´Ù.
+-   **COLMAP:** [°ø½Ä ¸±¸®Áî ÆäÀÌÁö](https://github.com/colmap/colmap/releases)¿¡¼­ ´Ù¿î·ÎµåÇÏ¿© ¼³Ä¡ÇØ¾ß ÇÕ´Ï´Ù.
+-   **Git**
+
+### 2. ¼³Ä¡
+
+1.  **¸®Æ÷ÁöÅä¸® Å¬·Ğ:**
+    ```bash
+    git clone [https://github.com/Overlay-Yong/instant-nerf-3d-automation.git](https://github.com/Overlay-Yong/instant-nerf-3d-automation.git)
+    cd instant-nerf-3d-automation
+    ```
+
+2.  **°¡»ó È¯°æ »ı¼º ¹× È°¼ºÈ­ (±ÇÀå):**
+    ```bash
+    python -m venv venv
+    # Windows
+    .\venv\Scripts\activate
+    # macOS/Linux
+    source venv/bin/activate
+    ```
+
+3.  **ÇÊ¿äÇÑ ¶óÀÌºê·¯¸® ¼³Ä¡:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **`config.py` ¼³Á¤:**
+    -   ÇÁ·ÎÁ§Æ® ·çÆ®¿¡ ÀÖ´Â `config.py` ÆÄÀÏÀ» ¿±´Ï´Ù.
+    -   `NERF_PATH` º¯¼ö¿¡ ·ÎÄÃ¿¡ ºôµåµÈ **Instant-NGP Æú´õÀÇ ÀüÃ¼ °æ·Î**¸¦ ÀÔ·ÂÇÕ´Ï´Ù.
+    -   `COLMAP_BIN_PATH` º¯¼ö¿¡ ·ÎÄÃ¿¡ ¼³Ä¡µÈ **COLMAPÀÇ `bin` Æú´õ ÀüÃ¼ °æ·Î**¸¦ ÀÔ·ÂÇÕ´Ï´Ù.
+
+### 3. ¾ÖÇÃ¸®ÄÉÀÌ¼Ç ½ÇÇà
+
+```bash
+python app.py
+```
+
+¼­¹ö°¡ ½ÇÇàµÇ¸é À¥ ºê¶ó¿ìÀú¿¡¼­ `http://127.0.0.1:5000` ·Î Á¢¼ÓÇÕ´Ï´Ù.
+
+## »ç¿ë ¹æ¹ı
+
+1.  À¥ ÆäÀÌÁöÀÇ 'ÆÄÀÏ ¼±ÅÃ' ¹öÆ°À» Å¬¸¯ÇÏ¿© 3D·Î ¸¸µé°í ½ÍÀº °´Ã¼¸¦ ÃÔ¿µÇÑ ÀÌ¹ÌÁö(ÃÖ¼Ò 20Àå ÀÌ»ó ±ÇÀå)¸¦ ¸ğµÎ ¼±ÅÃÇÕ´Ï´Ù.
+2.  '¾÷·Îµå ¹× »ı¼º ½ÃÀÛ' ¹öÆ°À» Å¬¸¯ÇÕ´Ï´Ù.
+3.  Ã³¸® °úÁ¤ÀÌ ½Ç½Ã°£ ·Î±×¿Í ÇÔ²² Ç¥½ÃµË´Ï´Ù. ¸ğµç °úÁ¤Àº ÀÚµ¿À¸·Î ÁøÇàµÇ¸ç, ¼ö ºĞ¿¡¼­ ¼ö½Ê ºĞÀÌ ¼Ò¿äµÉ ¼ö ÀÖ½À´Ï´Ù.
+4.  ¿Ï·áµÇ¸é ÀÚµ¿À¸·Î 3D ºä¾î ÆäÀÌÁö·Î ÀÌµ¿ÇÏ¿© °á°ú¹°À» È®ÀÎÇÒ ¼ö ÀÖ½À´Ï´Ù.

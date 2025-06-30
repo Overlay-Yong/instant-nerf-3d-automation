@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>NeRF 3D 모델 생성</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1c1e21;
+        }
+
+        #upload-form button {
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            #upload-form button:hover {
+                background-color: #166fe5;
+            }
+
+            #upload-form button:disabled {
+                background-color: #a0a0a0;
+                cursor: not-allowed;
+            }
+
+        .progress-area {
+            margin-top: 1.5rem;
+            text-align: left;
+            display: none;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e9ebee;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 20px;
+            background-color: #1877f2;
+            transition: width 0.4s;
+            text-align: center;
+            color: white;
+            line-height: 20px;
+            font-size: 0.8rem;
+        }
+
+        #log-container {
+            background-color: #f0f2f5;
+            border: 1px solid #dddfe2;
+            border-radius: 4px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 NeRF 3D 모델 생성기</h1>
+        <p>객체를 여러 각도에서 찍은 이미지(10-150장)를 업로드하세요.</p>
+        <form id="upload-form">
+            <input type="file" id="images" name="images" multiple required accept="image/png, image/jpeg">
+            <button type="submit" id="submit-btn">업로드 및 생성 시작</button>
+        </form>
+        <div class="progress-area" id="progress-area">
+            <h3 id="progress-text">처리 중...</h3>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar">0%</div>
+            </div>
+            <h4>실시간 로그:</h4>
+            <div id="log-container"></div>
+        </div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('upload-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const progressArea = document.getElementById('progress-area');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const logContainer = document.getElementById('log-container');
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = '처리 중...';
+            progressArea.style.display = 'block';
+            logContainer.innerHTML = ''; // 로그 초기화
+
+            const formData = new FormData(uploadForm);
+
+            try {
+                // 1. 파일 업로드 및 검증
+                progressText.textContent = '파일 업로드 및 검증 중...';
+                const uploadResponse = await fetch('/upload', { method: 'POST', body: formData });
+                const uploadResult = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    throw new Error(uploadResult.error || '업로드에 실패했습니다.');
+                }
+                logContainer.innerHTML += `✅ ${uploadResult.message}\n`;
+                const sessionId = uploadResult.session_id;
+
+                // 2. 3D 모델 생성 프로세스 시작 (Server-Sent Events)
+                const eventSource = new EventSource(`/process/${sessionId}`);
+
+                eventSource.onmessage = function (event) {
+                    const res = JSON.parse(event.data);
+
+                    if (res.type === 'progress') {
+                        // 진행률 업데이트
+                        progressText.textContent = res.data.text;
+                        progressBar.style.width = res.data.percent + '%';
+                        progressBar.textContent = res.data.percent + '%';
+
+                        // 프로세스 완료 시
+                        if (res.data.status === 'success') {
+                            window.location.href = `/viewer/${sessionId}`; // 뷰어 페이지로 이동
+                            eventSource.close();
+                        } else if (res.data.status === 'failed') {
+                            progressBar.style.backgroundColor = '#fa383e'; // 실패 시 빨간색
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '다시 시도';
+                            eventSource.close();
+                        }
+                    } else if (res.type === 'log') {
+                        // 로그 업데이트
+                        logContainer.innerHTML += `${res.data}\n`;
+                        logContainer.scrollTop = logContainer.scrollHeight;
+                    }
+                };
+
+                eventSource.onerror = function () {
+                    logContainer.innerHTML += '❌ 서버와 연결이 끊어졌습니다. 네트워크를 확인해주세요.';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '다시 시도';
+                    eventSource.close();
+                };
+
+            } catch (error) {
+                progressText.textContent = '오류 발생!';
+                logContainer.innerHTML += `❌ ${error.message}\n`;
+                submitBtn.disabled = false;
+                submitBtn.textContent = '다시 시도';
+            }
+        });
+    </script>
+</body>
+</html>

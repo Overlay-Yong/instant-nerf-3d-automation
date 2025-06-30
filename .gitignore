@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+.env
+.venv
+venv/
+env/
+ENV/
+
+# Uploads
+# 사용자가 업로드한 파일과 결과물은 리포지토리에 포함시키지 않음
+uploads/
+
+# IDE
+.vscode/
+.idea/
